@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    container_name: hr-backend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules  # Protect node_modules from being overwritten by host
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    command: pnpm run start:dev
