@@ -23,7 +23,17 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+HR Backend - A Human Resources management system built with NestJS, TypeORM, and MySQL.
+
+### Features
+
+- ✅ **NestJS 11** - Latest framework version
+- ✅ **TypeORM** - Database ORM with migration support
+- ✅ **MySQL 8.0** - Production-ready database
+- ✅ **Docker Compose** - Containerized development and production environments
+- ✅ **Docker Secrets** - Secure credential management for production
+- ✅ **Environment Configuration** - Type-safe config with @nestjs/config
+- ✅ **Base Entity Pattern** - UUID, timestamps, and soft delete support
 
 ## Project setup
 
@@ -31,7 +41,52 @@
 $ pnpm install
 ```
 
-## Compile and run the project
+### Database Setup
+
+This project uses MySQL with TypeORM. Database credentials are managed differently for development and production:
+
+- **Development**: Environment variables in `compose.dev.yaml`
+- **Production**: Docker Secrets for enhanced security
+
+See [PRODUCTION.md](./PRODUCTION.md) for production deployment guide.
+
+## Development with Docker
+
+### Start development environment
+
+```bash
+# Start MySQL and application with hot-reload
+$ docker compose -f compose.dev.yaml up -d
+
+# View logs
+$ docker logs hr-backend-dev -f
+
+# Stop services
+$ docker compose -f compose.dev.yaml down
+```
+
+The application will be available at `http://localhost:3000`
+
+### Database Migrations
+
+```bash
+# Generate migration from entity changes
+$ pnpm run migration:generate src/database/migrations/MigrationName
+
+# Create empty migration
+$ pnpm run migration:create src/database/migrations/MigrationName
+
+# Run pending migrations
+$ pnpm run migration:run
+
+# Revert last migration
+$ pnpm run migration:revert
+
+# Show migration status
+$ pnpm run migration:show
+```
+
+## Compile and run the project (local)
 
 ```bash
 # development
@@ -43,6 +98,8 @@ $ pnpm run start:dev
 # production mode
 $ pnpm run start:prod
 ```
+
+**Note**: When running locally (not in Docker), ensure MySQL is accessible and update `.env` with correct `DB_HOST`.
 
 ## Run tests
 
@@ -57,18 +114,35 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
-## Deployment
+## Production Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+This project uses **Docker Secrets** for secure credential management in production.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Quick Setup
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+1. **Initialize secrets** (one-time setup):
+   ```bash
+   $ bash scripts/setup-secrets.sh
+   ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+2. **Deploy to production**:
+   ```bash
+   $ docker compose -f compose.prod.yaml up -d
+   ```
+
+3. **Run database migrations**:
+   ```bash
+   $ docker exec hr-backend-prod pnpm run migration:run
+   ```
+
+### Security Features
+
+- 🔒 Database credentials stored as Docker Secrets (not environment variables)
+- 🔒 Secrets mounted to `/run/secrets/` (encrypted tmpfs)
+- 🔒 Automatic secret rotation support
+- 🔒 `.gitignore` configured to prevent committing secrets
+
+For detailed production deployment instructions, see [PRODUCTION.md](./PRODUCTION.md).
 
 ## Resources
 

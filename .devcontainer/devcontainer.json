@@ -15,7 +15,12 @@
         "wayou.vscode-todo-highlight",
         "usernamehw.errorlens",
         "naumovs.color-highlight",
-        "PKief.material-icon-theme"
+        "PKief.material-icon-theme",
+        // NestJS & TypeScript Development
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        // Database Tools
+        "cweijan.vscode-mysql-client2"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -25,17 +30,28 @@
         },
         "files.autoSave": "onFocusChange",
         "typescript.preferences.importModuleSpecifier": "relative",
-        "javascript.preferences.importModuleSpecifier": "relative"
+        "javascript.preferences.importModuleSpecifier": "relative",
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
       }
     }
   },
   "forwardPorts": [
-    3000
+    3000,
+    3306
   ],
   "portsAttributes": {
     "3000": {
       "label": "NestJS App",
       "onAutoForward": "notify"
+    },
+    "3306": {
+      "label": "MySQL Database",
+      "onAutoForward": "silent"
     }
   },
   "postCreateCommand": "pnpm install",

@@ -1,4 +1,29 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: hr-mysql-prod
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSQL_DATABASE: ${DB_DATABASE:-hr_database}
+      MYSQL_USER_FILE: /run/secrets/mysql_user
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password
+    secrets:
+      - mysql_root_password
+      - mysql_user
+      - mysql_password
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+    networks:
+      - hr-network
+    healthcheck:
+      test: ["CMD", "sh", "-c", "mysqladmin ping -h localhost -u $$(cat /run/secrets/mysql_user) -p$$(cat /run/secrets/mysql_password)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
   app:
     build:
       context: .
@@ -9,4 +34,35 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - DB_TYPE=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-hr_database}
+      - DB_SYNCHRONIZE=false
+      - DB_LOGGING=false
+      - DB_RUN_MIGRATIONS=${DB_RUN_MIGRATIONS:-false}
+    secrets:
+      - mysql_user
+      - mysql_password
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - hr-network
+
+volumes:
+  mysql_data_prod:
+    driver: local
+
+networks:
+  hr-network:
+    driver: bridge
+
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
+  mysql_user:
+    file: ./secrets/mysql_user.txt
+  mysql_password:
+    file: ./secrets/mysql_password.txt
